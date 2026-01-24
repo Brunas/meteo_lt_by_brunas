@@ -7,7 +7,15 @@
                 "description": "Nustatyti Meteo.Lt by Brunas integraciją su Home Assistant.",
                 "data": {
                     "latitude": "Platuma (latitude)",
-                    "longitude": "Ilguma (longitude)"
+                    "longitude": "Ilguma (longitude)",
+                    "enable_hydro": "Įjungti hidrologines stotis"
+                }
+            },
+            "hydro_select": {
+                "title": "Pasirinkti hidrologinę stotį",
+                "description": "Pasirinkite hidrologinę stotį vandens lygiui ir temperatūrai stebėti. Rasta {station_count} galimų stočių.",
+                "data": {
+                    "hydro_station_code": "Hidrologinė stotis"
                 }
             },
             "reconfigure": {
@@ -15,13 +23,18 @@
                 "description": "Atnaujinti Meteo.Lt by Brunas integracijos nustatymus.",
                 "data": {
                     "latitude": "Platuma (latitude)",
-                    "longitude": "Ilguma (longitude)"
+                    "longitude": "Ilguma (longitude)",
+                    "enable_hydro": "Įjungti hidrologines stotis"
                 }
             },
             "reconfigure_confirm": {
                 "title": "Patvirtinti perkonfigūravimą",
                 "description": "Ar jūs tikrai norite perkonfigūruoti Meteo.Lt by Brunas integraciją?"
             }
+        },
+        "error": {
+            "cannot_fetch_hydro_stations": "Nepavyko gauti galimų hidrologinių stočių",
+            "cannot_connect": "Ryšio klaida"
         }
     }
 }

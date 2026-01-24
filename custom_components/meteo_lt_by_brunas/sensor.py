@@ -18,7 +18,7 @@ from homeassistant.const import (
 )
 from homeassistant.core import callback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from .const import DOMAIN, LOGGER
+from .const import DOMAIN, LOGGER, MANUFACTURER
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
@@ -44,8 +44,19 @@ async def async_setup_entry(hass, entry, async_add_entities):
         MeteoLtHumiditySensor(coordinator, nearest_place, entry),
         MeteoLtPrecipitationSensor(coordinator, nearest_place, entry),
         MeteoLtConditionSensor(coordinator, nearest_place, entry),
-        MeteoLtWarningsSensor(coordinator, nearest_place, entry),
     ]
+
+    # Add hydro sensors if hydrological station is configured
+    domain_data = hass.data[DOMAIN][entry.entry_id]
+    if "hydro_coordinator" in domain_data and "hydro_station" in domain_data:
+        hydro_coordinator = domain_data["hydro_coordinator"]
+        hydro_station = domain_data["hydro_station"]
+        LOGGER.debug("Adding hydro sensors for station: %s", hydro_station.name)
+
+        sensors.extend([
+            HydroWaterLevelSensor(hydro_coordinator, hydro_station, entry),
+            HydroWaterTemperatureSensor(hydro_coordinator, hydro_station, entry),
+        ])
 
     async_add_entities(sensors)
 
@@ -65,7 +76,7 @@ class MeteoLtBaseSensor(CoordinatorEntity, SensorEntity):
     ):
         """Initialize the sensor."""
         super().__init__(coordinator)
-        self._attr_name = f"{config_entry.title} {nearest_place.name} - {attribute}"
+        self._attr_name = f"{config_entry.title} {nearest_place.name} {attribute.replace('_', ' ').title()}"
         self._attr_unique_id = f"{config_entry.entry_id}-{attribute}".replace(
             " ", "_"
         ).lower()
@@ -73,11 +84,25 @@ class MeteoLtBaseSensor(CoordinatorEntity, SensorEntity):
         self._attr_device_class = device_class
         self._attr_state_class = state_class
         self._attr_native_unit_of_measurement = unit
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, config_entry.entry_id)},
+            "name": config_entry.title,
+            "manufacturer": MANUFACTURER,
+        }
 
     @property
     def native_value(self):
         """Return the value of the sensor."""
-        return getattr(self.coordinator.data.current_conditions, self._attribute)
+        try:
+            value = getattr(self.coordinator.data.current_conditions, self._attribute)
+            return value
+        except AttributeError:
+            # Handle cases where the attribute doesn't exist on the object
+            LOGGER.debug(
+                "Attribute %s not found on current_conditions, returning None",
+                self._attribute
+            )
+            return None
 
     @property
     def extra_state_attributes(self) -> Dict[str, Any] | None:
@@ -141,7 +166,6 @@ class MeteoLtCurrentConditionsSensor(MeteoLtBaseSensor):
             "humidity": current_conditions.humidity,
             "native_precipitation": current_conditions.precipitation,
             "condition": current_conditions.condition,
-            "warnings": current_conditions.warnings,
             "native_temperature_unit": UnitOfTemperature.CELSIUS,
             "native_wind_speed_unit": UnitOfSpeed.METERS_PER_SECOND,
             "native_pressure_unit": UnitOfPressure.HPA,
@@ -293,9 +317,89 @@ class MeteoLtConditionSensor(MeteoLtBaseSensor):
         super().__init__(coordinator, nearest_place, config_entry, "condition")
 
 
-class MeteoLtWarningsSensor(MeteoLtBaseSensor):
-    """MeteoLtWarningsSensor"""
+class HydroBaseSensor(CoordinatorEntity, SensorEntity):
+    """Base class for hydrological sensors."""
 
-    def __init__(self, coordinator, nearest_place, config_entry):
-        # Text representation of warnings
-        super().__init__(coordinator, nearest_place, config_entry, "warnings")
+    def __init__(
+        self,
+        coordinator,
+        hydro_station,
+        config_entry,
+        attribute_name,
+        device_class=None,
+        state_class=None,
+        unit_of_measurement=None,
+    ):
+        """Initialize the sensor."""
+        super().__init__(coordinator)
+        self.hydro_station = hydro_station
+        self._attribute = attribute_name
+        self._attr_device_class = device_class
+        self._attr_state_class = state_class
+        self._attr_native_unit_of_measurement = unit_of_measurement
+        self._attr_unique_id = f"{config_entry.entry_id}_{hydro_station.code}_{attribute_name}"
+        self._attr_name = f"{config_entry.title} {hydro_station.name} {attribute_name.replace('_', ' ').title()}"
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, f"{config_entry.entry_id}_hydro_{hydro_station.code}")},
+            "name": f"{config_entry.title} - {hydro_station.name}",
+            "manufacturer": MANUFACTURER,
+        }
+
+    @property
+    def available(self):
+        """Return if entity is available."""
+        if not self.coordinator.last_update_success:
+            return False
+        if not self.coordinator.data or not self.coordinator.data.observations:
+            return False
+        return len(self.coordinator.data.observations) > 0
+
+    @property
+    def native_value(self):
+        """Return the state of the sensor."""
+        if not self.coordinator.data or not self.coordinator.data.observations:
+            return None
+
+        latest_observation = self.coordinator.data.observations[0]
+        return getattr(latest_observation, self._attribute, None)
+
+    @property
+    def extra_state_attributes(self) -> Dict[str, Any]:
+        """Return entity specific state attributes."""
+        attrs = {}
+        if self.coordinator.data:
+            attrs["station_name"] = self.hydro_station.name
+            attrs["station_code"] = self.hydro_station.code
+            attrs["water_body"] = self.hydro_station.water_body
+        return attrs
+
+
+class HydroWaterLevelSensor(HydroBaseSensor):
+    """Water level sensor for hydrological station."""
+
+    def __init__(self, coordinator, hydro_station, config_entry):
+        super().__init__(
+            coordinator,
+            hydro_station,
+            config_entry,
+            "water_level",
+            SensorDeviceClass.DISTANCE,
+            SensorStateClass.MEASUREMENT,
+            UnitOfTemperature.CELSIUS,  # Will be cm but HA doesn't have cm for distance
+        )
+        self._attr_native_unit_of_measurement = "cm"
+
+
+class HydroWaterTemperatureSensor(HydroBaseSensor):
+    """Water temperature sensor for hydrological station."""
+
+    def __init__(self, coordinator, hydro_station, config_entry):
+        super().__init__(
+            coordinator,
+            hydro_station,
+            config_entry,
+            "water_temperature",
+            SensorDeviceClass.TEMPERATURE,
+            SensorStateClass.MEASUREMENT,
+            UnitOfTemperature.CELSIUS,
+        )

@@ -7,7 +7,15 @@
                 "description": "Set up Meteo.Lt by Brunas integration with your Home Assistant.",
                 "data": {
                     "latitude": "Latitude",
-                    "longitude": "Longitude"
+                    "longitude": "Longitude",
+                    "enable_hydro": "Enable Hydrological Stations"
+                }
+            },
+            "hydro_select": {
+                "title": "Select Hydrological Station",
+                "description": "Choose a hydrological station to monitor water level and temperature. Found {station_count} available stations.",
+                "data": {
+                    "hydro_station_code": "Hydrological Station"
                 }
             },
             "reconfigure": {
@@ -15,13 +23,18 @@
                 "description": "Update your Meteo.Lt by Brunas integration settings.",
                 "data": {
                     "latitude": "Latitude",
-                    "longitude": "Longitude"
+                    "longitude": "Longitude",
+                    "enable_hydro": "Enable Hydrological Stations"
                 }
             },
             "reconfigure_confirm": {
                 "title": "Confirm Reconfiguration",
                 "description": "Are you sure you want to reconfigure the Meteo.Lt by Brunas integration?"
             }
+        },
+        "error": {
+            "cannot_fetch_hydro_stations": "Could not fetch available hydrological stations",
+            "cannot_connect": "Connection failed"
         }
     }
 }
