@@ -15,6 +15,7 @@ from homeassistant.const import (
     UnitOfTemperature,
     UnitOfPressure,
     UnitOfPrecipitationDepth,
+    UnitOfLength,
 )
 from homeassistant.core import callback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -31,6 +32,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
     coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
     nearest_place = hass.data[DOMAIN][entry.entry_id]["nearest_place"]
+    nearest_hydro_station = hass.data[DOMAIN][entry.entry_id]["nearest_hydro_station"]
 
     sensors = [
         MeteoLtCurrentConditionsSensor(coordinator, nearest_place, entry),
@@ -45,6 +47,8 @@ async def async_setup_entry(hass, entry, async_add_entities):
         MeteoLtPrecipitationSensor(coordinator, nearest_place, entry),
         MeteoLtConditionSensor(coordinator, nearest_place, entry),
         MeteoLtWarningsSensor(coordinator, nearest_place, entry),
+        MeteoLtWaterLevelSensor(coordinator, nearest_hydro_station, entry),
+        MeteoLtWaterTemperatureSensor(coordinator, nearest_hydro_station, entry),
     ]
 
     async_add_entities(sensors)
@@ -66,9 +70,7 @@ class MeteoLtBaseSensor(CoordinatorEntity, SensorEntity):
         """Initialize the sensor."""
         super().__init__(coordinator)
         self._attr_name = f"{config_entry.title} {nearest_place.name} - {attribute}"
-        self._attr_unique_id = f"{config_entry.entry_id}-{attribute}".replace(
-            " ", "_"
-        ).lower()
+        self._attr_unique_id = f"{config_entry.entry_id}-{attribute}".replace(" ", "_").lower()
         self._attribute = attribute
         self._attr_device_class = device_class
         self._attr_state_class = state_class
@@ -90,9 +92,7 @@ class MeteoLtBaseSensor(CoordinatorEntity, SensorEntity):
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        LOGGER.debug(
-            "Handling Meteo.Lt sensor coordinator update for entity %s", self.entity_id
-        )
+        LOGGER.debug("Handling Meteo.Lt sensor coordinator update for entity %s", self.entity_id)
         self.async_write_ha_state()
 
     async def async_update(self):
@@ -103,9 +103,7 @@ class MeteoLtBaseSensor(CoordinatorEntity, SensorEntity):
     async def async_added_to_hass(self):
         """When entity is added to hass."""
         await super().async_added_to_hass()
-        self.async_on_remove(
-            self.coordinator.async_add_listener(self._handle_coordinator_update)
-        )
+        self.async_on_remove(self.coordinator.async_add_listener(self._handle_coordinator_update))
 
 
 class MeteoLtCurrentConditionsSensor(MeteoLtBaseSensor):
@@ -299,3 +297,49 @@ class MeteoLtWarningsSensor(MeteoLtBaseSensor):
     def __init__(self, coordinator, nearest_place, config_entry):
         # Text representation of warnings
         super().__init__(coordinator, nearest_place, config_entry, "warnings")
+
+
+class MeteoLtWaterLevelSensor(MeteoLtBaseSensor):
+    """MeteoLtWaterLevelSensor"""
+
+    def __init__(self, coordinator, nearest_hydro_station, config_entry):
+        super().__init__(
+            coordinator,
+            nearest_hydro_station,
+            config_entry,
+            "water_level",
+            None,
+            SensorStateClass.MEASUREMENT,
+            UnitOfLength.CENTIMETERS,
+        )
+
+    @property
+    def native_value(self):
+        """Return the water level from hydro observations if available."""
+        hydro = getattr(self.coordinator, "hydro_observations", None)
+        if not hydro:
+            return None
+        return getattr(hydro, "water_level", getattr(hydro, "level", None))
+
+
+class MeteoLtWaterTemperatureSensor(MeteoLtBaseSensor):
+    """MeteoLtWaterTemperatureSensor"""
+
+    def __init__(self, coordinator, nearest_hydro_station, config_entry):
+        super().__init__(
+            coordinator,
+            nearest_hydro_station,
+            config_entry,
+            "water_temperature",
+            SensorDeviceClass.TEMPERATURE,
+            SensorStateClass.MEASUREMENT,
+            UnitOfTemperature.CELSIUS,
+        )
+
+    @property
+    def native_value(self):
+        """Return the water temperature from hydro observations if available."""
+        hydro = getattr(self.coordinator, "hydro_observations", None)
+        if not hydro:
+            return None
+        return getattr(hydro, "water_temperature", getattr(hydro, "temperature", None))
