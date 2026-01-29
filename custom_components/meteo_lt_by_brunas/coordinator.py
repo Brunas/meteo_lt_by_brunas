@@ -11,10 +11,11 @@ from .const import MANUFACTURER, LOGGER, UPDATE_MINUTES
 class MeteoLtCoordinator(DataUpdateCoordinator):
     """Class to manage fetching Meteo LT data."""
 
-    def __init__(self, hass, api, nearest_place):
+    def __init__(self, hass, api, nearest_place, nearest_hydro_station):
         """Initialize."""
         self.api = api
         self.nearest_place = nearest_place
+        self.nearest_hydro_station = nearest_hydro_station
         self.last_updated = None
         super().__init__(
             hass,
