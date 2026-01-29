@@ -1,6 +1,6 @@
 colorlog==6.10.1
 homeassistant==2025.10.2
-pip>=24.1.1,<25.3
+pip>=24.1.1,<25.4
 black
 meteo_lt-pkg>=0.4.0,<0.5
 ruff
