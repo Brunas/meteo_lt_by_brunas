@@ -11,9 +11,7 @@ Home Assistant integration for Meteo.Lt REST API
 
 <a href="https://buymeacoffee.com/pdfdc52z8h" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="20%"></a>
 
-
 **IMPORTANT NOTE:** I had to rename integration since there will be/is official meteo.lt integration in Home Assistant core. Unfortunately, that means entities will be renamed too.
-
 
 This integration adds support for retrieving the Forecast and Hydro data from [Api.Meteo.Lt](https://api.meteo.lt) and setting up following platforms in Home Assistant:
 
@@ -31,11 +29,13 @@ This integration adds support for retrieving the Forecast and Hydro data from [A
 | `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_humidity`             | Humidity sensor in %                                                                                                                                                                              |
 | `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_precipitation`        | Precipitation sensor in mm                                                                                                                                                                        |
 | `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_condition`            | Weather condition sensor (textual description)                                                                                                                                                    |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_warnings`             | Weather warnings sensor showing count of active warnings. Full detailed information including county, type, severity, description, and time range is available in the `warnings_detail` attribute |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_water_level`          | Water level sensor in cm from nearest hydro station. Historical observations for the past 24 hours are available in the `observations` attribute                                                  |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_water_temperature`    | Water temperature sensor in °C from nearest hydro station. Historical observations for the past 24 hours are available in the `observations` attribute                                            |
+| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_warnings`             | Weather warnings sensor showing count of active warnings. Full detailed information including county, type, severity, description, and time range is available in extra state attributes of the sensor |
+| `sensor`  | `sensor.meteo_lt_by_brunas_EFGH_water_level`          | Water level sensor in cm from nearest hydro station. Historical observations for the past 24 hours are available in extra state attributes of the sensor                                                  |
+| `sensor`  | `sensor.meteo_lt_by_brunas_EFGH_water_temperature`    | Water temperature sensor in °C from nearest hydro station. Historical observations for the past 24 hours are available in extra state attributes of the sensor                                            |
 
-Where `ABCD` is name of the nearest place calculated using place list downloaded from `api.meteo.lt`
+Where:
+- `ABCD` is name of the nearest weather place calculated using place list downloaded from `api.meteo.lt`
+- `EFGH` is name of the nearest hydro station calculated using hydro station list downloaded from `api.meteo.lt`
 
 Implementation has been done using Home Assistant version **2025.1.4**. Older versions could work too as long as the new Weather entity forecast types exist. Integration does **not** create Forecast Attributes.
 
@@ -63,7 +63,6 @@ or
 1. Enter latitude and longitude to use for the integration. Default values are Home Assistant Home location.
 1. Unlimitted number of locations is supported. If an entity for the same place exists, new entity gets numeric suffix to the name.
 1. You're all set
-
 
 ## Manual Installation
 
@@ -96,7 +95,6 @@ logger:
 [SMHI](https://www.home-assistant.io/integrations/smhi/)
 
 [OpenWeatherMap](https://www.home-assistant.io/integrations/openweathermap/)
-
 
 ***
 
