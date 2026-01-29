@@ -20,7 +20,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.data.setdefault(DOMAIN, {})
 
-    api = MeteoLtAPI(async_get_clientsession(hass))
+    api = MeteoLtAPI(session=async_get_clientsession(hass))
     latitude = entry.data.get("latitude", hass.config.latitude)
     longitude = entry.data.get("longitude", hass.config.longitude)
     LOGGER.debug("Configured coordinates: %s, %s", latitude, longitude)
