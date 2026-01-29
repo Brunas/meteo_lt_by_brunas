@@ -298,6 +298,34 @@ class MeteoLtWarningsSensor(MeteoLtBaseSensor):
         # Text representation of warnings
         super().__init__(coordinator, nearest_place, config_entry, "warnings")
 
+    @property
+    def native_value(self):
+        """Return count of warnings to fit 255-char limit."""
+        warnings = getattr(self.coordinator.data.current_conditions, self._attribute)
+        if not warnings:
+            return 0
+        return len(warnings) if isinstance(warnings, list) else 1
+
+    @property
+    def extra_state_attributes(self) -> Dict[str, Any] | None:
+        """Return detailed warnings in attributes."""
+        base_attrs = super().extra_state_attributes or {}
+        warnings = getattr(self.coordinator.data.current_conditions, self._attribute)
+        if warnings:
+            warnings_list = [
+                {
+                    "county": w.county,
+                    "type": w.warning_type,
+                    "severity": w.severity,
+                    "description": w.description,
+                    "start": w.start_time,
+                    "end": w.end_time,
+                }
+                for w in (warnings if isinstance(warnings, list) else [warnings])
+            ]
+            base_attrs["warnings_detail"] = warnings_list
+        return base_attrs
+
 
 class MeteoLtWaterLevelSensor(MeteoLtBaseSensor):
     """MeteoLtWaterLevelSensor"""
