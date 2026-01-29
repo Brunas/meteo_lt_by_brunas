@@ -1,0 +1,19 @@
+homeassistant:
+  unit_system: metric
+  time_zone: Europe/Vilnius
+
+http:
+  cors_allowed_origins:
+    - http://localhost:3000
+    - http://127.0.0.1:3000
+
+logger:
+  default: info
+  logs:
+    custom_components.meteo_lt_by_brunas: debug
+    homeassistant.components.weather: debug
+    homeassistant.components.sensor: debug
+
+frontend:
+
+default_config:

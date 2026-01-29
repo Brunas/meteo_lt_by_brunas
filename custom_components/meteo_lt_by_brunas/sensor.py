@@ -327,7 +327,66 @@ class MeteoLtWarningsSensor(MeteoLtBaseSensor):
         return base_attrs
 
 
-class MeteoLtWaterLevelSensor(MeteoLtBaseSensor):
+class MeteoLtHydroBaseSensor(MeteoLtBaseSensor):
+    """Base class for hydro sensors."""
+
+    def __init__(
+        self,
+        coordinator,
+        nearest_hydro_station,
+        config_entry,
+        attribute,
+        device_class=None,
+        state_class=None,
+        unit=None,
+    ):
+        """Initialize the hydro sensor."""
+        super().__init__(
+            coordinator,
+            nearest_hydro_station,
+            config_entry,
+            attribute,
+            device_class,
+            state_class,
+            unit,
+        )
+        self._observation_attribute = attribute
+
+    def _get_observation_fields(self, obs):
+        """Return the fields to include in observation list. Override in subclass."""
+        raise NotImplementedError
+
+    @property
+    def native_value(self):
+        """Return the value from hydro observations if available."""
+        hydro = getattr(self.coordinator, "hydro_observations", None)
+        if not hydro or not hasattr(hydro, "observations") or not hydro.observations:
+            return None
+        # Get the latest observation (last item in the list)
+        latest_observation = hydro.observations[-1]
+        return getattr(latest_observation, self._observation_attribute, None)
+
+    @property
+    def extra_state_attributes(self) -> Dict[str, Any] | None:
+        """Return all hydro observations in attributes."""
+        base_attrs = super().extra_state_attributes or {}
+        hydro = getattr(self.coordinator, "hydro_observations", None)
+        if hydro:
+            # Add station information
+            if hasattr(hydro, "station"):
+                base_attrs["station_code"] = getattr(hydro.station, "code", None)
+                base_attrs["station_name"] = getattr(hydro.station, "name", None)
+                base_attrs["water_body"] = getattr(hydro.station, "water_body", None)
+
+            # Add observations as an array
+            if hasattr(hydro, "observations") and hydro.observations:
+                observations_list = [self._get_observation_fields(obs) for obs in hydro.observations]
+                base_attrs["observations"] = observations_list
+                base_attrs["observation_count"] = len(observations_list)
+        return base_attrs
+
+
+class MeteoLtWaterLevelSensor(MeteoLtHydroBaseSensor):
     """MeteoLtWaterLevelSensor"""
 
     def __init__(self, coordinator, nearest_hydro_station, config_entry):
@@ -341,16 +400,16 @@ class MeteoLtWaterLevelSensor(MeteoLtBaseSensor):
             UnitOfLength.CENTIMETERS,
         )
 
-    @property
-    def native_value(self):
-        """Return the water level from hydro observations if available."""
-        hydro = getattr(self.coordinator, "hydro_observations", None)
-        if not hydro:
-            return None
-        return getattr(hydro, "water_level", getattr(hydro, "level", None))
+    def _get_observation_fields(self, obs):
+        """Return water level observation fields."""
+        return {
+            "datetime": obs.observation_datetime,
+            "water_level": obs.water_level,
+            "water_discharge": obs.water_discharge,
+        }
 
 
-class MeteoLtWaterTemperatureSensor(MeteoLtBaseSensor):
+class MeteoLtWaterTemperatureSensor(MeteoLtHydroBaseSensor):
     """MeteoLtWaterTemperatureSensor"""
 
     def __init__(self, coordinator, nearest_hydro_station, config_entry):
@@ -364,10 +423,9 @@ class MeteoLtWaterTemperatureSensor(MeteoLtBaseSensor):
             UnitOfTemperature.CELSIUS,
         )
 
-    @property
-    def native_value(self):
-        """Return the water temperature from hydro observations if available."""
-        hydro = getattr(self.coordinator, "hydro_observations", None)
-        if not hydro:
-            return None
-        return getattr(hydro, "water_temperature", getattr(hydro, "temperature", None))
+    def _get_observation_fields(self, obs):
+        """Return water temperature observation fields."""
+        return {
+            "datetime": obs.observation_datetime,
+            "water_temperature": obs.water_temperature,
+        }

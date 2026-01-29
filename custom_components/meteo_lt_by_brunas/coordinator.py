@@ -72,6 +72,7 @@ class MeteoLtCoordinator(DataUpdateCoordinator):
         if self.nearest_hydro_station:
             try:
                 hydro_observations = await self.api.get_hydro_observation_data(self.nearest_hydro_station.code)
+                LOGGER.debug("Hydro data fetched: %s", hydro_observations)
                 self.hydro_observations = hydro_observations
             except Exception as exc:  # pragma: no cover - best-effort fetch; pylint: disable=broad-except
                 LOGGER.debug("Failed to fetch hydro observations: %s", exc)
