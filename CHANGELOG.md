@@ -1,3 +1,11 @@
+## Release 0.5.0
+
+Date: `2026-01-29`
+
+- Upped `meteo_lt-pkg` version to support hydro observations for nearest hydro station
+- Hydro information added as `water_level` and `water_temperature` sensors with 24 hour historical measurements
+- Changed warnings sensor to present count of warnings when all the details are in attributes part
+
 ## Release 0.4.0
 
 Date: `2025-10-20`

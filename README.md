@@ -15,23 +15,25 @@ Home Assistant integration for Meteo.Lt REST API
 **IMPORTANT NOTE:** I had to rename integration since there will be/is official meteo.lt integration in Home Assistant core. Unfortunately, that means entities will be renamed too.
 
 
-This integration adds support for retrieving the Forecast data from [Api.Meteo.Lt](https://api.meteo.lt) and setting up following platforms in Home Assistant:
+This integration adds support for retrieving the Forecast and Hydro data from [Api.Meteo.Lt](https://api.meteo.lt) and setting up following platforms in Home Assistant:
 
-| Platform  | Entity ID                                             | Description                                                                                                                           |
-| --------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `weather` | `weather.meteo_lt_by_brunas_ABCD`                     | A Home Assistant `weather` entity, with current data, and hourly forecast data. The first forecast record is treated as current data. |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_current_conditions`   | Sensor with all available data taken from the forecast first record and native value set to `temperature`                             |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_temperature`          | Sensor with `temperature` attribute taken from the forecast first record                                                              |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_apparent_temperature` | Sensor with `apparent_temperature` attribute taken from the forecast first record                                                     |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_wind_speed`           | Sensor with `wind_speed` attribute taken from the forecast first record                                                               |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_wind_gust_speed`      | Sensor with `wind_gust_speed` attribute taken from the forecast first record                                                          |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_wind_bearing`         | Sensor with `wind_bearing` attribute taken from the forecast first record                                                             |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_cloud_coverage`       | Sensor with `cloud_coverage` attribute taken from the forecast first record                                                           |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_pressure`             | Sensor with `pressure` attribute taken from the forecast first record                                                                 |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_humidity`             | Sensor with `humidity` attribute taken from the forecast first record                                                                 |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_precipitation`        | Sensor with `precipitation` attribute taken from the forecast first record                                                            |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_condition`            | Sensor with `condition` attribute taken from the forecast first record                                                                |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_warnings`             | Sensor with `warnings` attribute taken from the forecast first record                                                                 |
+| Platform  | Entity ID                                             | Description                                                                                                                                                                         |
+| --------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `weather` | `weather.meteo_lt_by_brunas_ABCD`                     | A Home Assistant `weather` entity, with current data, and hourly forecast data. The first forecast record is treated as current data.                                               |
+| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_current_conditions`   | Sensor with all available weather data taken from the forecast first record and native value set to `temperature`                                                                   |
+| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_temperature`          | Temperature sensor in °C                                                                                                                                                            |
+| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_apparent_temperature` | Apparent (feels like) temperature sensor in °C                                                                                                                                      |
+| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_wind_speed`           | Wind speed sensor in m/s                                                                                                                                                            |
+| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_wind_gust_speed`      | Wind gust speed sensor in m/s                                                                                                                                                       |
+| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_wind_bearing`         | Wind direction sensor in degrees                                                                                                                                                    |
+| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_cloud_coverage`       | Cloud coverage sensor in %                                                                                                                                                          |
+| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_pressure`             | Atmospheric pressure sensor in hPa                                                                                                                                                  |
+| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_humidity`             | Humidity sensor in %                                                                                                                                                                |
+| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_precipitation`        | Precipitation sensor in mm                                                                                                                                                          |
+| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_condition`            | Weather condition sensor (textual description)                                                                                                                                      |
+| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_warnings`             | Weather warnings sensor showing count of active warnings. Full detailed information including county, type, severity, description, and time range is available in the `warnings_detail` attribute |
+| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_water_level`          | Water level sensor in cm from nearest hydro station. Historical observations for the past 24 hours are available in the `observations` attribute                                    |
+| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_water_temperature`    | Water temperature sensor in °C from nearest hydro station. Historical observations for the past 24 hours are available in the `observations` attribute                              |
 
 Where `ABCD` is name of the nearest place calculated using place list downloaded from `api.meteo.lt`
 
