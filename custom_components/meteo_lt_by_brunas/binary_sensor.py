@@ -61,6 +61,7 @@ class MeteoLtAlertSensor(CoordinatorEntity, BinarySensorEntity):
                         alerts.append(
                             {
                                 "county": getattr(w, "county", "Unknown"),
+                                "category": getattr(w, "category", "weather"),
                                 "type": getattr(w, "warning_type", "Unknown"),
                                 "severity": getattr(w, "severity", "Unknown"),
                                 "description": getattr(w, "description", ""),

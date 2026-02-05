@@ -3,5 +3,5 @@ homeassistant==2025.12.5
 pip>=26.0,<27
 black
 flake8
-meteo_lt-pkg>=0.5.1,<0.6
+meteo_lt-pkg>=0.5.2,<0.6
 ruff

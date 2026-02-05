@@ -315,6 +315,7 @@ class MeteoLtWarningsSensor(MeteoLtBaseSensor):
             warnings_list = [
                 {
                     "county": w.county,
+                    "category": w.category,
                     "type": w.warning_type,
                     "severity": w.severity,
                     "description": w.description,
