@@ -21,7 +21,8 @@
         "donjayamanne.githistory",
         "mhutchie.git-graph",
         "mikoz.black-py",
-        "github.copilot-chat"
+        "github.copilot-chat",
+        "github.vscode-github-actions"
       ],
       "settings": {
         "terminal.integrated.shell.linux": "/bin/bash",

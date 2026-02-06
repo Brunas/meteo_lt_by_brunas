@@ -65,6 +65,7 @@ class MeteoLtAlertSensor(CoordinatorEntity, BinarySensorEntity):
                                 "type": getattr(w, "warning_type", "Unknown"),
                                 "severity": getattr(w, "severity", "Unknown"),
                                 "description": getattr(w, "description", ""),
+                                "instruction": getattr(w, "instruction", ""),
                                 "start": getattr(w, "start_time", forecast.datetime),
                                 "end": getattr(w, "end_time", None),
                                 "forecast_time": forecast.datetime,

@@ -319,6 +319,7 @@ class MeteoLtWarningsSensor(MeteoLtBaseSensor):
                     "type": w.warning_type,
                     "severity": w.severity,
                     "description": w.description,
+                    "instruction": w.instruction,
                     "start": w.start_time,
                     "end": w.end_time,
                 }

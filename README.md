@@ -109,6 +109,7 @@ content: |
   **Severity:** {{ alert.severity | title }}
   **County:** {{ alert.county }}
   **Description:** {{ alert.description }}
+  **Recommendations:** {{ alert.instruction }}
   **Start:** {{ alert.start }}
   **End:** {{ alert.end }}
   {% endfor %}
@@ -150,6 +151,7 @@ card:
     **{{ alert.severity | upper }}**: {{ alert.type | title }}
 
     {{ alert.description }}
+    {{ alert.instruction }}
 
     *Valid from {{ alert.start }} to {{ alert.end }}*
 
