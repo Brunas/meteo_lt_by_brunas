@@ -28,56 +28,116 @@ class MeteoLtAlertSensor(CoordinatorEntity, BinarySensorEntity):
         """Initialize the sensor."""
         super().__init__(coordinator)
         self._attr_name = f"{config_entry.title} {nearest_place.name} - Alerts"
-        self._attr_unique_id = f"{config_entry.entry_id}-alerts".replace(" ", "_").lower()
+        self._attr_unique_id = f"{config_entry.entry_id}-alerts".replace(
+            " ", "_"
+        ).lower()
         self._attr_device_class = BinarySensorDeviceClass.SAFETY
+
+    def _get_valid_warnings(self, interval):
+        """Extract valid warning objects from an interval."""
+        LOGGER.debug(
+            "Checking warnings for interval %s: warnings=%s, type=%s",
+            getattr(interval, "datetime", "unknown"),
+            interval.warnings,
+            type(interval.warnings).__name__,
+        )
+
+        if not interval.warnings or interval.warnings == 0:
+            LOGGER.debug("No warnings or warnings == 0, returning empty list")
+            return []
+
+        raw_warnings = interval.warnings
+        if not isinstance(raw_warnings, list):
+            LOGGER.debug("Warnings is not a list, converting: %s", raw_warnings)
+            raw_warnings = [raw_warnings]
+        else:
+            LOGGER.debug("Warnings is a list with %d items", len(raw_warnings))
+
+        valid_warnings = [w for w in raw_warnings if hasattr(w, "warning_type")]
+        LOGGER.debug(
+            "Found %d valid warnings out of %d total",
+            len(valid_warnings),
+            len(raw_warnings),
+        )
+
+        for w in valid_warnings:
+            LOGGER.debug(
+                "Valid warning: type=%s, severity=%s, has_warning_type=%s",
+                getattr(w, "warning_type", "N/A"),
+                getattr(w, "severity", "N/A"),
+                hasattr(w, "warning_type"),
+            )
+
+        return valid_warnings
 
     @property
     def is_on(self) -> bool:
         """Return true if any warning exists in the forecast."""
-        if not self.coordinator.data or not hasattr(self.coordinator.data, "forecast_timestamps"):
+        LOGGER.debug("Evaluating is_on for binary sensor %s", self._attr_unique_id)
+
+        if not self.coordinator.data or not hasattr(
+            self.coordinator.data, "forecast_timestamps"
+        ):
+            LOGGER.debug("No coordinator data or forecast_timestamps")
             return False
 
-        for interval in self.coordinator.data.forecast_timestamps:
-            if interval.warnings:
+        total_intervals = len(self.coordinator.data.forecast_timestamps)
+        LOGGER.debug("Checking %d forecast intervals for warnings", total_intervals)
+
+        for idx, interval in enumerate(self.coordinator.data.forecast_timestamps):
+            valid_warnings = self._get_valid_warnings(interval)
+            if valid_warnings:
+                LOGGER.info(
+                    "Binary sensor ON: Found %d valid warning(s) in interval %d/%d at %s",
+                    len(valid_warnings),
+                    idx + 1,
+                    total_intervals,
+                    getattr(interval, "datetime", "unknown"),
+                )
                 return True
+
+        LOGGER.debug("Binary sensor OFF: No valid warnings found in any interval")
         return False
 
     @property
     def extra_state_attributes(self):
         """Return all upcoming warnings as list in attributes."""
+        LOGGER.debug(
+            "Building extra_state_attributes for binary sensor %s", self._attr_unique_id
+        )
         alerts = []
 
-        if self.coordinator.data and hasattr(self.coordinator.data, "forecast_timestamps"):
-            for forecast in self.coordinator.data.forecast_timestamps:
-                if not forecast.warnings or forecast.warnings == "no_warning":
-                    continue
+        if self.coordinator.data and hasattr(
+            self.coordinator.data, "forecast_timestamps"
+        ):
+            total_intervals = len(self.coordinator.data.forecast_timestamps)
+            LOGGER.debug("Processing %d forecast intervals for alerts", total_intervals)
 
-                raw_warnings = forecast.warnings
-                if not isinstance(raw_warnings, list):
-                    raw_warnings = [raw_warnings]
+            for idx, forecast in enumerate(self.coordinator.data.forecast_timestamps):
+                valid_warnings = self._get_valid_warnings(forecast)
 
-                for w in raw_warnings:
-                    if hasattr(w, "warning_type"):
-                        alerts.append(
-                            {
-                                "county": getattr(w, "county", "Unknown"),
-                                "category": getattr(w, "category", "weather"),
-                                "type": getattr(w, "warning_type", "Unknown"),
-                                "severity": getattr(w, "severity", "Unknown"),
-                                "description": getattr(w, "description", ""),
-                                "instruction": getattr(w, "instruction", ""),
-                                "start": getattr(w, "start_time", forecast.datetime),
-                                "end": getattr(w, "end_time", None),
-                                "forecast_time": forecast.datetime,
-                            }
-                        )
-                    else:
-                        alerts.append(
-                            {
-                                "type": str(w),
-                                "forecast_time": forecast.datetime,
-                            }
-                        )
+                for w in valid_warnings:
+                    alert = {
+                        "county": getattr(w, "county", "Unknown"),
+                        "category": getattr(w, "category", "weather"),
+                        "type": getattr(w, "warning_type", "Unknown"),
+                        "severity": getattr(w, "severity", "Unknown"),
+                        "description": getattr(w, "description", ""),
+                        "instruction": getattr(w, "instruction", ""),
+                        "start": getattr(w, "start_time", forecast.datetime),
+                        "end": getattr(w, "end_time", None),
+                        "forecast_time": forecast.datetime,
+                    }
+                    alerts.append(alert)
+                    LOGGER.debug(
+                        "Alert %d: %s (%s) at %s",
+                        len(alerts),
+                        alert["type"],
+                        alert["severity"],
+                        forecast.datetime,
+                    )
+
+        LOGGER.info("Binary sensor attributes: %d total alerts", len(alerts))
 
         return {
             "alerts": alerts,
