@@ -14,7 +14,7 @@
         "meteo_lt_by_brunas"
     ],
     "requirements": [
-        "meteo_lt-pkg>=0.5.3,<0.6.0"
+        "meteo_lt-pkg>=0.6.0,<0.7.0"
     ],
     "version": "0.5.0"
 }
