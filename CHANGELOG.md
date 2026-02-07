@@ -1,10 +1,11 @@
 ## Release 0.5.0
 
-Date: `2026-02-06`
+Date: `2026-02-07`
 
-- Upped `meteo_lt-pkg` version to support hydro observations for nearest hydro station and hydro warnings in the same warnings list. Warning instruction has been made a separate property in a warning
-- Hydro information added as `water_level` and `water_temperature` sensors with 24 hour historical measurements
-- Changed warnings sensor to present count of warnings when all the details are in attributes part
+- Upped `meteo_lt-pkg` version to support hydro observations for nearest hydro station and hydro warnings in the same warnings list. Warning instruction has been made a separate property in a warning.
+- Warning county renamed to administrative_division since hydro warnings are for municipalities not counties.
+- Hydro information added as `water_level` and `water_temperature` sensors with 24 hour historical measurements.
+- Changed warnings sensor to present count of warnings when all the details are in attributes part.
 - Added binary sensor for alerts based on availability of future weather or hydro warnings. The list of upcoming warnings is in sensor extra attributes. This allows using any specific cards, e.g. markdown, to show flexibly customized alert with details
 
 ## Release 0.4.0

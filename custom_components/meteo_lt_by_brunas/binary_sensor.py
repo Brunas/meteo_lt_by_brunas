@@ -118,7 +118,9 @@ class MeteoLtAlertSensor(CoordinatorEntity, BinarySensorEntity):
 
                 for w in valid_warnings:
                     alert = {
-                        "county": getattr(w, "county", "Unknown"),
+                        "administrative_division": getattr(
+                            w, "administrative_division", "Unknown"
+                        ),
                         "category": getattr(w, "category", "weather"),
                         "type": getattr(w, "warning_type", "Unknown"),
                         "severity": getattr(w, "severity", "Unknown"),
