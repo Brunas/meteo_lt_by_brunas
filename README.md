@@ -11,29 +11,32 @@ Home Assistant integration for Meteo.Lt REST API
 
 <a href="https://buymeacoffee.com/pdfdc52z8h" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="20%"></a>
 
-
 **IMPORTANT NOTE:** I had to rename integration since there will be/is official meteo.lt integration in Home Assistant core. Unfortunately, that means entities will be renamed too.
 
+This integration adds support for retrieving the Forecast and Hydro data from [Api.Meteo.Lt](https://api.meteo.lt) and setting up following platforms in Home Assistant:
 
-This integration adds support for retrieving the Forecast data from [Api.Meteo.Lt](https://api.meteo.lt) and setting up following platforms in Home Assistant:
+| Platform        | Entity ID                                             | Description                                                                                                                                                                                                                                                             |
+| --------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `weather`       | `weather.meteo_lt_by_brunas_ABCD`                     | A Home Assistant `weather` entity, with current data, and hourly forecast data. The first forecast record is treated as current data.                                                                                                                                   |
+| `sensor`        | `sensor.meteo_lt_by_brunas_ABCD_current_conditions`   | Sensor with all available weather data taken from the forecast first record and native value set to `temperature`                                                                                                                                                       |
+| `sensor`        | `sensor.meteo_lt_by_brunas_ABCD_temperature`          | Temperature sensor in °C                                                                                                                                                                                                                                                |
+| `sensor`        | `sensor.meteo_lt_by_brunas_ABCD_apparent_temperature` | Apparent (feels like) temperature sensor in °C                                                                                                                                                                                                                          |
+| `sensor`        | `sensor.meteo_lt_by_brunas_ABCD_wind_speed`           | Wind speed sensor in m/s                                                                                                                                                                                                                                                |
+| `sensor`        | `sensor.meteo_lt_by_brunas_ABCD_wind_gust_speed`      | Wind gust speed sensor in m/s                                                                                                                                                                                                                                           |
+| `sensor`        | `sensor.meteo_lt_by_brunas_ABCD_wind_bearing`         | Wind direction sensor in degrees                                                                                                                                                                                                                                        |
+| `sensor`        | `sensor.meteo_lt_by_brunas_ABCD_cloud_coverage`       | Cloud coverage sensor in %                                                                                                                                                                                                                                              |
+| `sensor`        | `sensor.meteo_lt_by_brunas_ABCD_pressure`             | Atmospheric pressure sensor in hPa                                                                                                                                                                                                                                      |
+| `sensor`        | `sensor.meteo_lt_by_brunas_ABCD_humidity`             | Humidity sensor in %                                                                                                                                                                                                                                                    |
+| `sensor`        | `sensor.meteo_lt_by_brunas_ABCD_precipitation`        | Precipitation sensor in mm                                                                                                                                                                                                                                              |
+| `sensor`        | `sensor.meteo_lt_by_brunas_ABCD_condition`            | Weather condition sensor (textual description)                                                                                                                                                                                                                          |
+| `sensor`        | `sensor.meteo_lt_by_brunas_ABCD_warnings`             | Weather warnings sensor showing count of active warnings. Full detailed information including administrative division, type, severity, description, and time range is available in extra state attributes of the sensor                                                 |
+| `binary_sensor` | `binary_sensor.meteo_lt_by_brunas_ABCD_alerts`        | Binary sensor that indicates if there are any active weather alerts. State is `on` when alerts exist, `off` otherwise. Detailed alert information including administrative division, type, severity, description, start/end time is available in extra state attributes |
+| `sensor`        | `sensor.meteo_lt_by_brunas_EFGH_water_level`          | Water level sensor in cm from nearest hydro station. Historical observations for the past 24 hours are available in extra state attributes of the sensor                                                                                                                |
+| `sensor`        | `sensor.meteo_lt_by_brunas_EFGH_water_temperature`    | Water temperature sensor in °C from nearest hydro station. Historical observations for the past 24 hours are available in extra state attributes of the sensor                                                                                                          |
 
-| Platform  | Entity ID                                             | Description                                                                                                                           |
-| --------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `weather` | `weather.meteo_lt_by_brunas_ABCD`                     | A Home Assistant `weather` entity, with current data, and hourly forecast data. The first forecast record is treated as current data. |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_current_conditions`   | Sensor with all available data taken from the forecast first record and native value set to `temperature`                             |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_temperature`          | Sensor with `temperature` attribute taken from the forecast first record                                                              |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_apparent_temperature` | Sensor with `apparent_temperature` attribute taken from the forecast first record                                                     |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_wind_speed`           | Sensor with `wind_speed` attribute taken from the forecast first record                                                               |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_wind_gust_speed`      | Sensor with `wind_gust_speed` attribute taken from the forecast first record                                                          |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_wind_bearing`         | Sensor with `wind_bearing` attribute taken from the forecast first record                                                             |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_cloud_coverage`       | Sensor with `cloud_coverage` attribute taken from the forecast first record                                                           |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_pressure`             | Sensor with `pressure` attribute taken from the forecast first record                                                                 |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_humidity`             | Sensor with `humidity` attribute taken from the forecast first record                                                                 |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_precipitation`        | Sensor with `precipitation` attribute taken from the forecast first record                                                            |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_condition`            | Sensor with `condition` attribute taken from the forecast first record                                                                |
-| `sensor`  | `sensor.meteo_lt_by_brunas_ABCD_warnings`             | Sensor with `warnings` attribute taken from the forecast first record                                                                 |
-
-Where `ABCD` is name of the nearest place calculated using place list downloaded from `api.meteo.lt`
+Where:
+- `ABCD` is name of the nearest weather place calculated using place list downloaded from `api.meteo.lt`
+- `EFGH` is name of the nearest hydro station calculated using hydro station list downloaded from `api.meteo.lt`
 
 Implementation has been done using Home Assistant version **2025.1.4**. Older versions could work too as long as the new Weather entity forecast types exist. Integration does **not** create Forecast Attributes.
 
@@ -62,7 +65,6 @@ or
 1. Unlimitted number of locations is supported. If an entity for the same place exists, new entity gets numeric suffix to the name.
 1. You're all set
 
-
 ## Manual Installation
 
 1. Using the tool of choice open the directory (folder) for your HA configuration (where you find `configuration.yaml`).
@@ -87,6 +89,172 @@ logger:
     custom_components.meteo_lt_by_brunas: debug
 ```
 
+## Using the Alerts Binary Sensor with Markdown Card
+
+The alerts binary sensor can be used to display weather warnings on your dashboard. Here's an example using the Markdown card:
+
+### Simple Alert Display
+
+```yaml
+type: markdown
+content: |
+  {% if is_state('binary_sensor.meteo_lt_by_brunas_vilnius_alerts', 'on') %}
+  ## Weather Alerts Active
+
+  **{{ state_attr('binary_sensor.meteo_lt_by_brunas_vilnius_alerts', 'count') }}** active alert(s)
+
+  {% for alert in state_attr('binary_sensor.meteo_lt_by_brunas_vilnius_alerts', 'alerts') %}
+  ---
+  **Type:** {{ alert.type | title }}
+  **Severity:** {{ alert.severity | title }}
+  **Administrative division:** {{ alert.administrative_division }}
+  **Description:** {{ alert.description }}
+  **Recommendations:** {{ alert.instruction }}
+  **Start:** {{ alert.start }}
+  **End:** {{ alert.end }}
+  {% endfor %}
+  {% else %}
+  ## No Active Weather Alerts
+  {% endif %}
+title: Weather Alerts
+```
+
+### Compact Alert Display
+
+```yaml
+type: markdown
+content: |
+  {% if is_state('binary_sensor.meteo_lt_by_brunas_vilnius_alerts', 'on') %}
+  **Weather Alerts:** {{ state_attr('binary_sensor.meteo_lt_by_brunas_vilnius_alerts', 'count') }}
+  {% for alert in state_attr('binary_sensor.meteo_lt_by_brunas_vilnius_alerts', 'alerts') %}
+  - **{{ alert.type | title }}** ({{ alert.severity }}) - {{ alert.administrative_division }}
+  {% endfor %}
+  {% else %}
+  No active alerts
+  {% endif %}
+```
+
+### Conditional Alert Card (Only Shows When Alerts Exist)
+
+```yaml
+type: conditional
+conditions:
+  - condition: state
+    entity: binary_sensor.meteo_lt_by_brunas_vilnius_alerts
+    state: 'on'
+card:
+  type: markdown
+  content: |
+    # Weather Alert!
+
+    {% for alert in state_attr('binary_sensor.meteo_lt_by_brunas_vilnius_alerts', 'alerts') %}
+    **{{ alert.severity | upper }}**: {{ alert.type | title }}
+
+    {{ alert.description }}
+    {{ alert.instruction }}
+
+    *Valid from {{ alert.start }} to {{ alert.end }}*
+
+    ---
+    {% endfor %}
+  title: Active Weather Warnings
+```
+
+## Alerts Binary Sensor with Button Card
+
+If you prefer a more styled look, you can use `custom:button-card` to render alert blocks with severity-aware colors, camel case alert types, and a compact footer showing forecast and update times.
+
+```yaml
+type: conditional
+conditions:
+  - entity: binary_sensor.meteo_lt_by_brunas_vilnius_alerts
+    state: "on"
+card:
+  type: custom:button-card
+  entity: binary_sensor.meteo_lt_by_brunas_vilnius_alerts
+  name: >
+    [[[ return entity.attributes.friendly_name || 'Alerts'; ]]]
+  show_icon: true
+  show_name: true
+  icon: mdi:alert
+  icon_color: >
+    [[[
+      const alerts = entity.attributes.alerts || [];
+      const isRed = alerts.some(a => {
+        const sev = (a.severity || '').toLowerCase();
+        return sev.includes('stichinis') || sev.includes('red');
+      });
+      return isRed ? 'red' : 'orange';
+    ]]]
+  custom_fields:
+    alerts: >
+      [[[
+        const toCamel = (s) => (s || '')
+          .toLowerCase()
+          .split(/[\s_]+/)
+          .filter(Boolean)
+          .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(' ');
+
+        const pad = (n) => String(n).padStart(2, '0');
+        const fmt = (d) => {
+          const dt = new Date(d);
+          return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+        };
+
+        const alerts = entity.attributes.alerts || [];
+        if (!alerts.length) return 'Refreshing weather data...';
+
+        const seen = new Set();
+        const uniq = alerts.filter(a => {
+          if (seen.has(a.type)) return false;
+          seen.add(a.type);
+          return true;
+        });
+
+        const blocks = uniq.map(a => {
+          const sev = (a.severity || '').toLowerCase();
+          const isRed = sev.includes('stichinis') || sev.includes('red');
+          const color = isRed ? '#d32f2f' : '#ff9800';
+          const bg = isRed ? 'rgba(211,47,47,0.08)' : 'rgba(255,152,0,0.08)';
+          const title = toCamel(a.type);
+
+          return `
+            <div style="border-left:4px solid ${color}; background:${bg}; padding:8px; margin:6px 0; border-radius:6px; text-align:left;">
+              <div style="font-weight:700; color:${color}; text-align:left;">${title} - ${a.administrative_division || ''}</div>
+              <div style="text-align:left;">${a.description || ''}</div>
+              <div style="opacity:0.9; text-align:left;">${a.instruction || ''}</div>
+              <div style="font-size:0.85em; opacity:0.75; text-align:left;">
+                Expected: ${fmt(a.start)} -> ${fmt(a.end)}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        const footer = `
+          <div style="font-size:0.85em; opacity:0.7; margin-top:8px; text-align:left;">
+            Forecasted: ${fmt(entity.attributes.forecast_created)} • Updated: ${fmt(entity.attributes.last_updated)}
+          </div>
+        `;
+
+        return blocks + footer;
+      ]]]
+  styles:
+    card:
+      - padding: 12px
+      - text-align: left
+    grid:
+      - justify-items: start
+    name:
+      - text-align: left
+    custom_fields:
+      alerts:
+        - text-align: left
+        - white-space: normal
+```
+
+>**Note:** Replace `vilnius` with your actual location name in the entity IDs above.
+
 ## Inspired by
 
 [WeatherFlow Cloud](https://www.home-assistant.io/integrations/weatherflow_cloud/)
@@ -94,7 +262,6 @@ logger:
 [SMHI](https://www.home-assistant.io/integrations/smhi/)
 
 [OpenWeatherMap](https://www.home-assistant.io/integrations/openweathermap/)
-
 
 ***
 

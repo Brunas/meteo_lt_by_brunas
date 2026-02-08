@@ -11,10 +11,12 @@ from .const import MANUFACTURER, LOGGER, UPDATE_MINUTES
 class MeteoLtCoordinator(DataUpdateCoordinator):
     """Class to manage fetching Meteo LT data."""
 
-    def __init__(self, hass, api, nearest_place):
+    def __init__(self, hass, api, nearest_place, nearest_hydro_station):
         """Initialize."""
         self.api = api
         self.nearest_place = nearest_place
+        self.nearest_hydro_station = nearest_hydro_station
+        self.hydro_observations = None
         self.last_updated = None
         super().__init__(
             hass,
@@ -58,16 +60,23 @@ class MeteoLtCoordinator(DataUpdateCoordinator):
         if forecast.current_conditions:
             forecast_time_utc = dt.parse_datetime(forecast.current_conditions.datetime)
             forecast.current_conditions.condition = self._map_condition(
-                forecast.current_conditions.condition_code,
-                forecast_time_utc
+                forecast.current_conditions.condition_code, forecast_time_utc
             )
 
         for timestamp in forecast.forecast_timestamps:
             forecast_time_utc = dt.parse_datetime(timestamp.datetime)
-            timestamp.condition = self._map_condition(
-                timestamp.condition_code,
-                forecast_time_utc
-            )
+            timestamp.condition = self._map_condition(timestamp.condition_code, forecast_time_utc)
+
+        # Fetch hydro observation data for nearest hydro station if available
+        hydro_observations = None
+        if self.nearest_hydro_station:
+            try:
+                hydro_observations = await self.api.get_hydro_observation_data(self.nearest_hydro_station.code)
+                LOGGER.debug("Hydro data fetched: %s", hydro_observations)
+                self.hydro_observations = hydro_observations
+            except Exception as exc:  # pragma: no cover - best-effort fetch; pylint: disable=broad-except
+                LOGGER.debug("Failed to fetch hydro observations: %s", exc)
+                self.hydro_observations = None
 
         LOGGER.debug("Forecast calculated: %s", forecast)
         self.last_updated = datetime.now().astimezone(timezone.utc).isoformat()

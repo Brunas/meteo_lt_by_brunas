@@ -13,7 +13,6 @@
         "ms-toolsai.jupyter",
         "ms-python.black-formatter",
         "ms-python.autopep8",
-        "ms-python.pylint",
         "ms-vscode.remote-containers",
         "charliermarsh.ruff",
         "yzhang.markdown-all-in-one",
@@ -21,7 +20,9 @@
         "keesschollaart.vscode-home-assistant",
         "donjayamanne.githistory",
         "mhutchie.git-graph",
-        "mikoz.black-py"
+        "mikoz.black-py",
+        "github.copilot-chat",
+        "github.vscode-github-actions"
       ],
       "settings": {
         "terminal.integrated.shell.linux": "/bin/bash",
@@ -38,7 +39,8 @@
     "source=${env:HOME}/.ssh,target=/root/.ssh,type=bind,readonly",
     "source=${env:HOME}/.ssh/known_hosts,target=/root/.ssh/known_hosts,type=bind,readonly",
     "source=${env:HOME}/.gitconfig,target=/root/.gitconfig,type=bind,readonly",
-    "source=${localWorkspaceFolder}/custom_components,target=/root/.homeassistant/custom_components,type=bind"
+    "source=${localWorkspaceFolder}/custom_components,target=/root/.homeassistant/custom_components,type=bind",
+    "source=${localWorkspaceFolder}/.devcontainer/configuration.yaml,target=/root/.homeassistant/configuration.yaml,type=bind"
   ],
   "forwardPorts": [
     8123
@@ -46,6 +48,6 @@
   "remoteEnv": {
     "TZ": "Europe/Vilnius"
   },
-  "postCreateCommand": "pip install -r requirements.txt && hass",
+  "postCreateCommand": "pip install -r requirements.txt && hass --debug",
   "postStartCommand": "export PYTHONPATH=$(python -c 'import site; print(site.getsitepackages()[0])')"
 }

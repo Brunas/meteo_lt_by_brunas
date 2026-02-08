@@ -42,9 +42,7 @@ class MeteoLtConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle the initial step."""
         errors = {}
         if user_input is not None:
-            await self.async_set_unique_id(
-                f"{DOMAIN}-{user_input['latitude']}-{user_input['longitude']}"
-            )
+            await self.async_set_unique_id(f"{DOMAIN}-{user_input['latitude']}-{user_input['longitude']}")
             self._abort_if_unique_id_configured()
             return self.async_create_entry(title=MANUFACTURER, data=user_input)
         return self._show_config_form("user", user_input, errors)
@@ -68,9 +66,7 @@ class MeteoLtConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if entry:
             current_config = entry.data
             default_latitude = current_config.get("latitude", self.hass.config.latitude)
-            default_longitude = current_config.get(
-                "longitude", self.hass.config.longitude
-            )
+            default_longitude = current_config.get("longitude", self.hass.config.longitude)
         else:
             default_latitude = self.hass.config.latitude
             default_longitude = self.hass.config.longitude

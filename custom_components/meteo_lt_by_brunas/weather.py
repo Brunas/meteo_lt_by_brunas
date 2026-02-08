@@ -21,9 +21,7 @@ from .const import DOMAIN, MANUFACTURER, LOGGER
 from .coordinator import MeteoLtCoordinator
 
 
-async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities
-):
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
     """Set up Meteo.Lt weather based on a config entry."""
     LOGGER.debug(
         "Weather setting up input: hass.data - %s, config entry - %s",
@@ -173,9 +171,7 @@ class MeteoLtWeather(SingleCoordinatorWeatherEntity[MeteoLtCoordinator]):
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        LOGGER.debug(
-            "Handling Meteo.Lt weather coordinator update for entity %s", self.entity_id
-        )
+        LOGGER.debug("Handling Meteo.Lt weather coordinator update for entity %s", self.entity_id)
         self.async_write_ha_state()
 
     async def async_update(self):
@@ -186,6 +182,4 @@ class MeteoLtWeather(SingleCoordinatorWeatherEntity[MeteoLtCoordinator]):
     async def async_added_to_hass(self):
         """When entity is added to hass."""
         await super().async_added_to_hass()
-        self.async_on_remove(
-            self.coordinator.async_add_listener(self._handle_coordinator_update)
-        )
+        self.async_on_remove(self.coordinator.async_add_listener(self._handle_coordinator_update))
