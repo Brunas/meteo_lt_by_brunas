@@ -160,6 +160,99 @@ card:
   title: Active Weather Warnings
 ```
 
+## Alerts Binary Sensor with Button Card
+
+If you prefer a more styled look, you can use `custom:button-card` to render alert blocks with severity-aware colors, camel case alert types, and a compact footer showing forecast and update times.
+
+```yaml
+type: conditional
+conditions:
+  - entity: binary_sensor.meteo_lt_by_brunas_vilnius_alerts
+    state: "on"
+card:
+  type: custom:button-card
+  entity: binary_sensor.meteo_lt_by_brunas_vilnius_alerts
+  name: >
+    [[[ return entity.attributes.friendly_name || 'Alerts'; ]]]
+  show_icon: true
+  show_name: true
+  icon: mdi:alert
+  icon_color: >
+    [[[
+      const alerts = entity.attributes.alerts || [];
+      const isRed = alerts.some(a => {
+        const sev = (a.severity || '').toLowerCase();
+        return sev.includes('stichinis') || sev.includes('red');
+      });
+      return isRed ? 'red' : 'orange';
+    ]]]
+  custom_fields:
+    alerts: >
+      [[[
+        const toCamel = (s) => (s || '')
+          .toLowerCase()
+          .split(/[\s_]+/)
+          .filter(Boolean)
+          .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(' ');
+
+        const pad = (n) => String(n).padStart(2, '0');
+        const fmt = (d) => {
+          const dt = new Date(d);
+          return `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+        };
+
+        const alerts = entity.attributes.alerts || [];
+        if (!alerts.length) return 'Refreshing weather data...';
+
+        const seen = new Set();
+        const uniq = alerts.filter(a => {
+          if (seen.has(a.type)) return false;
+          seen.add(a.type);
+          return true;
+        });
+
+        const blocks = uniq.map(a => {
+          const sev = (a.severity || '').toLowerCase();
+          const isRed = sev.includes('stichinis') || sev.includes('red');
+          const color = isRed ? '#d32f2f' : '#ff9800';
+          const bg = isRed ? 'rgba(211,47,47,0.08)' : 'rgba(255,152,0,0.08)';
+          const title = toCamel(a.type);
+
+          return `
+            <div style="border-left:4px solid ${color}; background:${bg}; padding:8px; margin:6px 0; border-radius:6px; text-align:left;">
+              <div style="font-weight:700; color:${color}; text-align:left;">${title} - ${a.administrative_division || ''}</div>
+              <div style="text-align:left;">${a.description || ''}</div>
+              <div style="opacity:0.9; text-align:left;">${a.instruction || ''}</div>
+              <div style="font-size:0.85em; opacity:0.75; text-align:left;">
+                Expected: ${fmt(a.start)} -> ${fmt(a.end)}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        const footer = `
+          <div style="font-size:0.85em; opacity:0.7; margin-top:8px; text-align:left;">
+            Forecasted: ${fmt(entity.attributes.forecast_created)} • Updated: ${fmt(entity.attributes.last_updated)}
+          </div>
+        `;
+
+        return blocks + footer;
+      ]]]
+  styles:
+    card:
+      - padding: 12px
+      - text-align: left
+    grid:
+      - justify-items: start
+    name:
+      - text-align: left
+    custom_fields:
+      alerts:
+        - text-align: left
+        - white-space: normal
+```
+
 >**Note:** Replace `vilnius` with your actual location name in the entity IDs above.
 
 ## Inspired by
