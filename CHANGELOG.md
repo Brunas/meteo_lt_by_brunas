@@ -1,3 +1,11 @@
+## Release 0.5.1
+
+Date: `2026-02-09`
+
+### Changes
+
+- Added `async_forecast_daily` method to calculate daily forecast using a bit optimized hass/meteo.lt integration approach.
+
 ## Release 0.5.0
 
 Date: `2026-02-07`

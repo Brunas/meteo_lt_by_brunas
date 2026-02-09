@@ -17,7 +17,7 @@ This integration adds support for retrieving the Forecast and Hydro data from [A
 
 | Platform        | Entity ID                                             | Description                                                                                                                                                                                                                                                             |
 | --------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `weather`       | `weather.meteo_lt_by_brunas_ABCD`                     | A Home Assistant `weather` entity, with current data, and hourly forecast data. The first forecast record is treated as current data.                                                                                                                                   |
+| `weather`       | `weather.meteo_lt_by_brunas_ABCD`                     | A Home Assistant `weather` entity, with current data, hourly forecast data, and daily forecast data. The first forecast record is treated as current data. Daily forecasts aggregate hourly data per day, using noon conditions for representative weather state.       |
 | `sensor`        | `sensor.meteo_lt_by_brunas_ABCD_current_conditions`   | Sensor with all available weather data taken from the forecast first record and native value set to `temperature`                                                                                                                                                       |
 | `sensor`        | `sensor.meteo_lt_by_brunas_ABCD_temperature`          | Temperature sensor in °C                                                                                                                                                                                                                                                |
 | `sensor`        | `sensor.meteo_lt_by_brunas_ABCD_apparent_temperature` | Apparent (feels like) temperature sensor in °C                                                                                                                                                                                                                          |
@@ -256,6 +256,8 @@ card:
 >**Note:** Replace `vilnius` with your actual location name in the entity IDs above.
 
 ## Inspired by
+
+[Meteo.lt](https://www.home-assistant.io/integrations/meteo_lt/)
 
 [WeatherFlow Cloud](https://www.home-assistant.io/integrations/weatherflow_cloud/)
 
