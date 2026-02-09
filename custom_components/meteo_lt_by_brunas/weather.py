@@ -2,6 +2,8 @@
 
 # pylint: disable=unused-argument, abstract-method, too-many-ancestors
 
+from collections import defaultdict
+from datetime import datetime
 from typing import List
 from homeassistant.components.weather import (
     Forecast,
@@ -133,7 +135,7 @@ class MeteoLtWeather(SingleCoordinatorWeatherEntity[MeteoLtCoordinator]):
     @property
     def supported_features(self):
         """Return the list of supported features."""
-        return WeatherEntityFeature.FORECAST_HOURLY
+        return WeatherEntityFeature.FORECAST_DAILY | WeatherEntityFeature.FORECAST_HOURLY
 
     @property
     def extra_state_attributes(self):
@@ -146,9 +148,6 @@ class MeteoLtWeather(SingleCoordinatorWeatherEntity[MeteoLtCoordinator]):
     @callback
     def _async_forecast_hourly(self) -> List[Forecast] | None:
         """Return the hourly forecast in native units."""
-        if not self.supported_features & WeatherEntityFeature.FORECAST_HOURLY:
-            return None
-
         hourly_forecast = [
             Forecast(
                 datetime=entry.datetime,
@@ -167,6 +166,56 @@ class MeteoLtWeather(SingleCoordinatorWeatherEntity[MeteoLtCoordinator]):
         ]
         LOGGER.debug("Hourly_forecast created: %s", hourly_forecast)
         return hourly_forecast
+
+    @callback
+    def _async_forecast_daily(self) -> list[Forecast] | None:
+        """Return the daily forecast. Based on hass/meteo_lt"""
+        if not self.coordinator.data:
+            return None
+
+        # Parse datetime once and group by date with parsed datetime
+        forecasts_by_date = defaultdict(list)
+        for timestamp in self.coordinator.data.forecast_timestamps:
+            dt = datetime.fromisoformat(timestamp.datetime)
+            forecasts_by_date[dt.date()].append((dt, timestamp))
+
+        daily_forecasts = []
+        for date in sorted(forecasts_by_date.keys()):
+            day_data = forecasts_by_date[date]
+            if not day_data:
+                continue
+
+            # Extract timestamps
+            day_forecasts = [ts for _, ts in day_data]
+
+            # Calculate temperature range
+            temps = [ts.temperature for ts in day_forecasts if ts.temperature is not None]
+            max_temp = max(temps) if temps else None
+            min_temp = min(temps) if temps else None
+
+            # Find noon forecast using pre-parsed datetime
+            noon_forecast = min(day_data, key=lambda x: abs(x[0].hour - 12))[1]
+
+            # Calculate total precipitation
+            precipitations = [ts.precipitation for ts in day_forecasts if ts.precipitation is not None]
+            total_precipitation = sum(precipitations) if precipitations else None
+
+            daily_forecast = Forecast(
+                datetime=day_forecasts[0].datetime,
+                native_temperature=max_temp,
+                native_templow=min_temp,
+                native_apparent_temperature=noon_forecast.apparent_temperature,
+                condition=noon_forecast.condition,
+                native_precipitation=total_precipitation,
+                precipitation_probability=None,
+                native_wind_speed=noon_forecast.wind_speed,
+                wind_bearing=noon_forecast.wind_bearing,
+                cloud_coverage=noon_forecast.cloud_coverage,
+            )
+            daily_forecasts.append(daily_forecast)
+
+        LOGGER.debug("Daily_forecast created: %s", daily_forecast)
+        return daily_forecasts
 
     @callback
     def _handle_coordinator_update(self) -> None:

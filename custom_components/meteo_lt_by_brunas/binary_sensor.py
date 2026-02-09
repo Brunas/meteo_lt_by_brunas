@@ -28,9 +28,7 @@ class MeteoLtAlertSensor(CoordinatorEntity, BinarySensorEntity):
         """Initialize the sensor."""
         super().__init__(coordinator)
         self._attr_name = f"{config_entry.title} {nearest_place.name} - Alerts"
-        self._attr_unique_id = f"{config_entry.entry_id}-alerts".replace(
-            " ", "_"
-        ).lower()
+        self._attr_unique_id = f"{config_entry.entry_id}-alerts".replace(" ", "_").lower()
         self._attr_device_class = BinarySensorDeviceClass.SAFETY
 
     def _get_valid_warnings(self, interval):
@@ -75,9 +73,7 @@ class MeteoLtAlertSensor(CoordinatorEntity, BinarySensorEntity):
         """Return true if any warning exists in the forecast."""
         LOGGER.debug("Evaluating is_on for binary sensor %s", self._attr_unique_id)
 
-        if not self.coordinator.data or not hasattr(
-            self.coordinator.data, "forecast_timestamps"
-        ):
+        if not self.coordinator.data or not hasattr(self.coordinator.data, "forecast_timestamps"):
             LOGGER.debug("No coordinator data or forecast_timestamps")
             return False
 
@@ -102,14 +98,10 @@ class MeteoLtAlertSensor(CoordinatorEntity, BinarySensorEntity):
     @property
     def extra_state_attributes(self):
         """Return all upcoming warnings as list in attributes."""
-        LOGGER.debug(
-            "Building extra_state_attributes for binary sensor %s", self._attr_unique_id
-        )
+        LOGGER.debug("Building extra_state_attributes for binary sensor %s", self._attr_unique_id)
         alerts = []
 
-        if self.coordinator.data and hasattr(
-            self.coordinator.data, "forecast_timestamps"
-        ):
+        if self.coordinator.data and hasattr(self.coordinator.data, "forecast_timestamps"):
             total_intervals = len(self.coordinator.data.forecast_timestamps)
             LOGGER.debug("Processing %d forecast intervals for alerts", total_intervals)
 
@@ -118,9 +110,7 @@ class MeteoLtAlertSensor(CoordinatorEntity, BinarySensorEntity):
 
                 for w in valid_warnings:
                     alert = {
-                        "administrative_division": getattr(
-                            w, "administrative_division", "Unknown"
-                        ),
+                        "administrative_division": getattr(w, "administrative_division", "Unknown"),
                         "category": getattr(w, "category", "weather"),
                         "type": getattr(w, "warning_type", "Unknown"),
                         "severity": getattr(w, "severity", "Unknown"),
