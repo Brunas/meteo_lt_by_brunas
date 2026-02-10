@@ -70,9 +70,7 @@ class MeteoLtBaseSensor(CoordinatorEntity, SensorEntity):
         """Initialize the sensor."""
         super().__init__(coordinator)
         self._attr_name = f"{config_entry.title} {nearest_place.name} - {attribute}"
-        self._attr_unique_id = f"{config_entry.entry_id}-{attribute}".replace(
-            " ", "_"
-        ).lower()
+        self._attr_unique_id = f"{config_entry.entry_id}-{attribute}".replace(" ", "_").lower()
         self._attribute = attribute
         self._attr_device_class = device_class
         self._attr_state_class = state_class
@@ -95,9 +93,7 @@ class MeteoLtBaseSensor(CoordinatorEntity, SensorEntity):
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        LOGGER.debug(
-            "Handling Meteo.Lt sensor coordinator update for entity %s", self.entity_id
-        )
+        LOGGER.debug("Handling Meteo.Lt sensor coordinator update for entity %s", self.entity_id)
         self.async_write_ha_state()
 
     async def async_update(self):
@@ -108,9 +104,7 @@ class MeteoLtBaseSensor(CoordinatorEntity, SensorEntity):
     async def async_added_to_hass(self):
         """When entity is added to hass."""
         await super().async_added_to_hass()
-        self.async_on_remove(
-            self.coordinator.async_add_listener(self._handle_coordinator_update)
-        )
+        self.async_on_remove(self.coordinator.async_add_listener(self._handle_coordinator_update))
 
 
 class MeteoLtCurrentConditionsSensor(MeteoLtBaseSensor):
@@ -320,7 +314,7 @@ class MeteoLtWarningsSensor(MeteoLtBaseSensor):
         warnings = getattr(self.coordinator.data.current_conditions, self._attribute)
         if warnings:
             # Get Home Assistant language, default to 'en'
-            lang = self.hass.config.language if self.hass.config.language in ['en', 'lt'] else 'en'
+            lang = self.hass.config.language if self.hass.config.language in ["en", "lt"] else "en"
             warnings_list = [
                 {
                     "administrative_division": w.administrative_division,
@@ -391,9 +385,7 @@ class MeteoLtHydroBaseSensor(MeteoLtBaseSensor):
 
             # Add observations as an array
             if hasattr(hydro, "observations") and hydro.observations:
-                observations_list = [
-                    self._get_observation_fields(obs) for obs in hydro.observations
-                ]
+                observations_list = [self._get_observation_fields(obs) for obs in hydro.observations]
                 base_attrs["observations"] = observations_list
                 base_attrs["observation_count"] = len(observations_list)
         return base_attrs
