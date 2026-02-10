@@ -32,6 +32,7 @@ class MeteoLtAlertSensor(CoordinatorEntity, BinarySensorEntity):
             " ", "_"
         ).lower()
         self._attr_device_class = BinarySensorDeviceClass.SAFETY
+        self.hass = coordinator.hass
 
     def _get_valid_warnings(self, interval):
         """Extract valid warning objects from an interval."""
@@ -116,6 +117,9 @@ class MeteoLtAlertSensor(CoordinatorEntity, BinarySensorEntity):
             for idx, forecast in enumerate(self.coordinator.data.forecast_timestamps):
                 valid_warnings = self._get_valid_warnings(forecast)
 
+                # Get Home Assistant language, default to 'en'
+                lang = self.hass.config.language if self.hass.config.language in ['en', 'lt'] else 'en'
+
                 for w in valid_warnings:
                     alert = {
                         "administrative_division": getattr(
@@ -124,8 +128,8 @@ class MeteoLtAlertSensor(CoordinatorEntity, BinarySensorEntity):
                         "category": getattr(w, "category", "weather"),
                         "type": getattr(w, "warning_type", "Unknown"),
                         "severity": getattr(w, "severity", "Unknown"),
-                        "description": getattr(w, "description", ""),
-                        "instruction": getattr(w, "instruction", ""),
+                        "description": w.get_description(lang) if hasattr(w, "get_description") else getattr(w, "description", ""),
+                        "instruction": w.get_instruction(lang) if hasattr(w, "get_instruction") else getattr(w, "instruction", ""),
                         "start": getattr(w, "start_time", forecast.datetime),
                         "end": getattr(w, "end_time", None),
                         "forecast_time": forecast.datetime,
