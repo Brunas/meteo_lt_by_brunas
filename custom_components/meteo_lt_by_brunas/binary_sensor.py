@@ -118,6 +118,9 @@ class MeteoLtAlertSensor(CoordinatorEntity, BinarySensorEntity):
                         "category": getattr(w, "category", "weather"),
                         "type": getattr(w, "warning_type", "Unknown"),
                         "severity": getattr(w, "severity", "Unknown"),
+                        "headline": (
+                            w.get_headline(lang) if hasattr(w, "get_headline") else getattr(w, "headline", "")
+                        ),
                         "description": (
                             w.get_description(lang) if hasattr(w, "get_description") else getattr(w, "description", "")
                         ),
