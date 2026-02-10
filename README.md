@@ -42,6 +42,18 @@ Implementation has been done using Home Assistant version **2025.1.4**. Older ve
 
 >**NOTE:** At the moment of writing this - api.meteo.lt data renewal happens every 3 hours.
 
+## Translations
+
+The integration supports multiple languages:
+- **English** (en) - Default
+- **Lithuanian** (lt)
+
+Translations are applied to:
+- **Config flow UI**: Integration setup and reconfiguration dialogs
+- **Weather warnings**: Headlines, descriptions, and instructions are automatically localized based on your Home Assistant language setting
+
+To use Lithuanian translations, set your Home Assistant language to Lithuanian in **Settings** → **System** → **General** → **Language**.
+
 ## Installation through HACS (Recommended Method)
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Brunas&repository=meteo_lt_by_brunas&category=integration)
@@ -105,6 +117,7 @@ content: |
 
   {% for alert in state_attr('binary_sensor.meteo_lt_by_brunas_vilnius_alerts', 'alerts') %}
   ---
+  **{{ alert.headline }}**
   **Type:** {{ alert.type | title }}
   **Severity:** {{ alert.severity | title }}
   **Administrative division:** {{ alert.administrative_division }}
@@ -127,7 +140,7 @@ content: |
   {% if is_state('binary_sensor.meteo_lt_by_brunas_vilnius_alerts', 'on') %}
   **Weather Alerts:** {{ state_attr('binary_sensor.meteo_lt_by_brunas_vilnius_alerts', 'count') }}
   {% for alert in state_attr('binary_sensor.meteo_lt_by_brunas_vilnius_alerts', 'alerts') %}
-  - **{{ alert.type | title }}** ({{ alert.severity }}) - {{ alert.administrative_division }}
+  - **{{ alert.headline }}** ({{ alert.severity }}) - {{ alert.administrative_division }}
   {% endfor %}
   {% else %}
   No active alerts
@@ -148,7 +161,7 @@ card:
     # Weather Alert!
 
     {% for alert in state_attr('binary_sensor.meteo_lt_by_brunas_vilnius_alerts', 'alerts') %}
-    **{{ alert.severity | upper }}**: {{ alert.type | title }}
+    **{{ alert.severity | upper }}**: {{ alert.headline }}
 
     {{ alert.description }}
     {{ alert.instruction }}
@@ -217,11 +230,11 @@ card:
           const isRed = sev.includes('stichinis') || sev.includes('red');
           const color = isRed ? '#d32f2f' : '#ff9800';
           const bg = isRed ? 'rgba(211,47,47,0.08)' : 'rgba(255,152,0,0.08)';
-          const title = toCamel(a.type);
+          const title = toCamel(a.headline);
 
           return `
             <div style="border-left:4px solid ${color}; background:${bg}; padding:8px; margin:6px 0; border-radius:6px; text-align:left;">
-              <div style="font-weight:700; color:${color}; text-align:left;">${title} - ${a.administrative_division || ''}</div>
+              <div style="font-weight:700; color:${color}; text-align:left;">${title}</div>
               <div style="text-align:left;">${a.description || ''}</div>
               <div style="opacity:0.9; text-align:left;">${a.instruction || ''}</div>
               <div style="font-size:0.85em; opacity:0.75; text-align:left;">
