@@ -30,6 +30,7 @@ class MeteoLtAlertSensor(CoordinatorEntity, BinarySensorEntity):
         self._attr_name = f"{config_entry.title} {nearest_place.name} - Alerts"
         self._attr_unique_id = f"{config_entry.entry_id}-alerts".replace(" ", "_").lower()
         self._attr_device_class = BinarySensorDeviceClass.SAFETY
+        self.hass = coordinator.hass
 
     def _get_valid_warnings(self, interval):
         """Extract valid warning objects from an interval."""
@@ -46,17 +47,9 @@ class MeteoLtAlertSensor(CoordinatorEntity, BinarySensorEntity):
 
         raw_warnings = interval.warnings
         if not isinstance(raw_warnings, list):
-            LOGGER.debug("Warnings is not a list, converting: %s", raw_warnings)
             raw_warnings = [raw_warnings]
-        else:
-            LOGGER.debug("Warnings is a list with %d items", len(raw_warnings))
 
         valid_warnings = [w for w in raw_warnings if hasattr(w, "warning_type")]
-        LOGGER.debug(
-            "Found %d valid warnings out of %d total",
-            len(valid_warnings),
-            len(raw_warnings),
-        )
 
         for w in valid_warnings:
             LOGGER.debug(
@@ -74,11 +67,9 @@ class MeteoLtAlertSensor(CoordinatorEntity, BinarySensorEntity):
         LOGGER.debug("Evaluating is_on for binary sensor %s", self._attr_unique_id)
 
         if not self.coordinator.data or not hasattr(self.coordinator.data, "forecast_timestamps"):
-            LOGGER.debug("No coordinator data or forecast_timestamps")
             return False
 
         total_intervals = len(self.coordinator.data.forecast_timestamps)
-        LOGGER.debug("Checking %d forecast intervals for warnings", total_intervals)
 
         for idx, interval in enumerate(self.coordinator.data.forecast_timestamps):
             valid_warnings = self._get_valid_warnings(interval)
@@ -92,7 +83,6 @@ class MeteoLtAlertSensor(CoordinatorEntity, BinarySensorEntity):
                 )
                 return True
 
-        LOGGER.debug("Binary sensor OFF: No valid warnings found in any interval")
         return False
 
     @property
@@ -102,11 +92,11 @@ class MeteoLtAlertSensor(CoordinatorEntity, BinarySensorEntity):
         alerts = []
 
         if self.coordinator.data and hasattr(self.coordinator.data, "forecast_timestamps"):
-            total_intervals = len(self.coordinator.data.forecast_timestamps)
-            LOGGER.debug("Processing %d forecast intervals for alerts", total_intervals)
-
             for idx, forecast in enumerate(self.coordinator.data.forecast_timestamps):
                 valid_warnings = self._get_valid_warnings(forecast)
+
+                # Get Home Assistant language, default to 'en'
+                lang = self.hass.config.language if self.hass.config.language in ["en", "lt"] else "en"
 
                 for w in valid_warnings:
                     alert = {
@@ -114,8 +104,15 @@ class MeteoLtAlertSensor(CoordinatorEntity, BinarySensorEntity):
                         "category": getattr(w, "category", "weather"),
                         "type": getattr(w, "warning_type", "Unknown"),
                         "severity": getattr(w, "severity", "Unknown"),
-                        "description": getattr(w, "description", ""),
-                        "instruction": getattr(w, "instruction", ""),
+                        "headline": (
+                            w.get_headline(lang) if hasattr(w, "get_headline") else getattr(w, "headline", "")
+                        ),
+                        "description": (
+                            w.get_description(lang) if hasattr(w, "get_description") else getattr(w, "description", "")
+                        ),
+                        "instruction": (
+                            w.get_instruction(lang) if hasattr(w, "get_instruction") else getattr(w, "instruction", "")
+                        ),
                         "start": getattr(w, "start_time", forecast.datetime),
                         "end": getattr(w, "end_time", None),
                         "forecast_time": forecast.datetime,

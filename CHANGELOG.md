@@ -1,3 +1,13 @@
+## Release 0.5.2
+
+Date: `2026-02-11`
+
+### Changes
+
+- Added `headline` field to weather warnings in both sensors and binary sensor attributes
+- Weather warning properties (`headline`, `description`, `instruction`) are now automatically localized based on Home Assistant language setting (supports English and Lithuanian)
+- Enhanced config flow with interactive map-based location selector
+
 ## Release 0.5.1
 
 Date: `2026-02-09`

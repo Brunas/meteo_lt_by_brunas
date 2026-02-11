@@ -75,6 +75,7 @@ class MeteoLtBaseSensor(CoordinatorEntity, SensorEntity):
         self._attr_device_class = device_class
         self._attr_state_class = state_class
         self._attr_native_unit_of_measurement = unit
+        self.hass = coordinator.hass
 
     @property
     def native_value(self):
@@ -312,14 +313,17 @@ class MeteoLtWarningsSensor(MeteoLtBaseSensor):
         base_attrs = super().extra_state_attributes or {}
         warnings = getattr(self.coordinator.data.current_conditions, self._attribute)
         if warnings:
+            # Get Home Assistant language, default to 'en'
+            lang = self.hass.config.language if self.hass.config.language in ["en", "lt"] else "en"
             warnings_list = [
                 {
                     "administrative_division": w.administrative_division,
                     "category": w.category,
                     "type": w.warning_type,
                     "severity": w.severity,
-                    "description": w.description,
-                    "instruction": w.instruction,
+                    "headline": w.get_headline(lang),
+                    "description": w.get_description(lang),
+                    "instruction": w.get_instruction(lang),
                     "start": w.start_time,
                     "end": w.end_time,
                 }

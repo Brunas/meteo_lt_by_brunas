@@ -4,24 +4,21 @@
         "step": {
             "user": {
                 "title": "Configure Meteo.Lt by Brunas",
-                "description": "Set up Meteo.Lt by Brunas integration with your Home Assistant.",
+                "description": "Set up Meteo.Lt by Brunas integration with your Home Assistant. Select a location on the map or enter coordinates.",
                 "data": {
-                    "latitude": "Latitude",
-                    "longitude": "Longitude"
+                    "location": "Location"
                 }
             },
             "reconfigure": {
                 "title": "Reconfigure Meteo.Lt by Brunas",
-                "description": "Update your Meteo.Lt by Brunas integration settings.",
+                "description": "Update your Meteo.Lt by Brunas integration location. Select a location on the map or enter coordinates.",
                 "data": {
-                    "latitude": "Latitude",
-                    "longitude": "Longitude"
+                    "location": "Location"
                 }
-            },
-            "reconfigure_confirm": {
-                "title": "Confirm Reconfiguration",
-                "description": "Are you sure you want to reconfigure the Meteo.Lt by Brunas integration?"
             }
+        },
+        "abort": {
+            "reconfigure_successful": "Location updated successfully."
         }
     }
 }

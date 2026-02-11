@@ -4,6 +4,7 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
+from homeassistant.helpers import selector
 
 from .const import DOMAIN, MANUFACTURER
 
@@ -19,16 +20,19 @@ class MeteoLtConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Show the configuration form."""
         step_id = step_id or "user"
         user_input = user_input or {}
+
+        # Prepare default location from user_input or HA config
+        default_location = {
+            "latitude": user_input.get("latitude", self.hass.config.latitude),
+            "longitude": user_input.get("longitude", self.hass.config.longitude),
+        }
+
         data_schema = vol.Schema(
             {
                 vol.Required(
-                    "latitude",
-                    default=user_input.get("latitude", self.hass.config.latitude),
-                ): vol.Coerce(float),
-                vol.Required(
-                    "longitude",
-                    default=user_input.get("longitude", self.hass.config.longitude),
-                ): vol.Coerce(float),
+                    "location",
+                    default=default_location,
+                ): selector.LocationSelector(),
             }
         )
         return self.async_show_form(
@@ -42,9 +46,20 @@ class MeteoLtConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle the initial step."""
         errors = {}
         if user_input is not None:
-            await self.async_set_unique_id(f"{DOMAIN}-{user_input['latitude']}-{user_input['longitude']}")
+            # Extract latitude and longitude from location selector
+            location = user_input.get("location", {})
+            latitude = location.get("latitude")
+            longitude = location.get("longitude")
+
+            # Store as flat latitude/longitude for backward compatibility
+            config_data = {
+                "latitude": latitude,
+                "longitude": longitude,
+            }
+
+            await self.async_set_unique_id(f"{DOMAIN}-{latitude}-{longitude}")
             self._abort_if_unique_id_configured()
-            return self.async_create_entry(title=MANUFACTURER, data=user_input)
+            return self.async_create_entry(title=MANUFACTURER, data=config_data)
         return self._show_config_form("user", user_input, errors)
 
     async def async_step_reconfigure(self, user_input=None) -> FlowResult:
@@ -55,10 +70,20 @@ class MeteoLtConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             entry_id = self.context["entry_id"]
             entry = self.hass.config_entries.async_get_entry(entry_id)
             if entry:
-                new_data = dict(entry.data)
-                new_data.update(user_input)
+                # Extract latitude and longitude from location selector
+                location = user_input.get("location", {})
+                latitude = location.get("latitude")
+                longitude = location.get("longitude")
+
+                # Store as flat latitude/longitude for backward compatibility
+                new_data = {
+                    "latitude": latitude,
+                    "longitude": longitude,
+                }
+
                 self.hass.config_entries.async_update_entry(entry, data=new_data)
-                return self.async_create_entry(title=MANUFACTURER, data=new_data)
+                await self.hass.config_entries.async_reload(entry.entry_id)
+                return self.async_abort(reason="reconfigure_successful")
             errors["base"] = "cannot_connect"
 
         entry_id = self.context["entry_id"]
@@ -76,10 +101,3 @@ class MeteoLtConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             {"latitude": default_latitude, "longitude": default_longitude},
             errors,
         )
-
-    async def async_step_reconfigure_confirm(self, user_input=None) -> FlowResult:
-        """Handle confirmation of reconfiguration."""
-        if user_input is not None:
-            return await self.async_step_reconfigure()
-
-        return self._show_config_form("reconfigure_confirm")
