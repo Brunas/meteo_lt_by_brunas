@@ -47,17 +47,9 @@ class MeteoLtAlertSensor(CoordinatorEntity, BinarySensorEntity):
 
         raw_warnings = interval.warnings
         if not isinstance(raw_warnings, list):
-            LOGGER.debug("Warnings is not a list, converting: %s", raw_warnings)
             raw_warnings = [raw_warnings]
-        else:
-            LOGGER.debug("Warnings is a list with %d items", len(raw_warnings))
 
         valid_warnings = [w for w in raw_warnings if hasattr(w, "warning_type")]
-        LOGGER.debug(
-            "Found %d valid warnings out of %d total",
-            len(valid_warnings),
-            len(raw_warnings),
-        )
 
         for w in valid_warnings:
             LOGGER.debug(
@@ -75,11 +67,9 @@ class MeteoLtAlertSensor(CoordinatorEntity, BinarySensorEntity):
         LOGGER.debug("Evaluating is_on for binary sensor %s", self._attr_unique_id)
 
         if not self.coordinator.data or not hasattr(self.coordinator.data, "forecast_timestamps"):
-            LOGGER.debug("No coordinator data or forecast_timestamps")
             return False
 
         total_intervals = len(self.coordinator.data.forecast_timestamps)
-        LOGGER.debug("Checking %d forecast intervals for warnings", total_intervals)
 
         for idx, interval in enumerate(self.coordinator.data.forecast_timestamps):
             valid_warnings = self._get_valid_warnings(interval)
@@ -93,7 +83,6 @@ class MeteoLtAlertSensor(CoordinatorEntity, BinarySensorEntity):
                 )
                 return True
 
-        LOGGER.debug("Binary sensor OFF: No valid warnings found in any interval")
         return False
 
     @property
@@ -103,9 +92,6 @@ class MeteoLtAlertSensor(CoordinatorEntity, BinarySensorEntity):
         alerts = []
 
         if self.coordinator.data and hasattr(self.coordinator.data, "forecast_timestamps"):
-            total_intervals = len(self.coordinator.data.forecast_timestamps)
-            LOGGER.debug("Processing %d forecast intervals for alerts", total_intervals)
-
             for idx, forecast in enumerate(self.coordinator.data.forecast_timestamps):
                 valid_warnings = self._get_valid_warnings(forecast)
 
