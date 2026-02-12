@@ -200,8 +200,11 @@ class MeteoLtWeather(SingleCoordinatorWeatherEntity[MeteoLtCoordinator]):
             precipitations = [ts.precipitation for ts in day_forecasts if ts.precipitation is not None]
             total_precipitation = sum(precipitations) if precipitations else None
 
+            # Normalize datetime to midnight for this date
+            normalized_datetime = datetime.combine(date, datetime.min.time()).isoformat()
+
             daily_forecast = Forecast(
-                datetime=day_forecasts[0].datetime,
+                datetime=normalized_datetime,
                 native_temperature=max_temp,
                 native_templow=min_temp,
                 native_apparent_temperature=noon_forecast.apparent_temperature,
