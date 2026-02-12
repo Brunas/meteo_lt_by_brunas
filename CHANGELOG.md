@@ -1,3 +1,11 @@
+## Release 0.5.3
+
+Date: `2026-02-12`
+
+### Bug Fixes
+
+- Fixed daily forecast showing duplicate days with different forecasts during the last hour of the day. Daily forecast datetime is now normalized to midnight for consistent day representation.
+
 ## Release 0.5.2
 
 Date: `2026-02-11`
