@@ -35,6 +35,6 @@ jobs:
           zip meteo_lt_by_brunas-${{ env.VERSION }}.zip -r ./
 
       - name: Upload the ZIP file to the release
-        uses: softprops/action-gh-release@v2.5.0
+        uses: softprops/action-gh-release@v2.6.1
         with:
           files: ${{ github.workspace }}/custom_components/meteo_lt_by_brunas/meteo_lt_by_brunas-${{ env.VERSION }}.zip
