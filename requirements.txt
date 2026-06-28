@@ -1,6 +1,6 @@
 colorlog==6.10.1
 homeassistant==2026.2.3
-pip>=26.0,<27
+pip>=26.1.2,<27
 black
 flake8
 meteo_lt-pkg>=0.7.1,<0.8
