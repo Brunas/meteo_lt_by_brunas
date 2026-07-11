@@ -1,3 +1,12 @@
+## Release 0.5.4
+
+Date: `2026-07-11`
+
+### Changes
+
+- Bumped `meteo_lt-pkg` dependency to `0.7.2`.
+- Bumped `homeassistant` to `2026.6.0` (fixes security advisory GHSA-x84v-g949-293w) and CI Python to `3.14`.
+
 ## Release 0.5.3
 
 Date: `2026-02-12`
