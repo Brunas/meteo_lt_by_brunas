@@ -1,3 +1,11 @@
+## Release 0.5.7
+
+Date: `2026-07-12`
+
+### Changes
+
+- Bumped `meteo_lt-pkg` dependency to `0.7.3`.
+
 ## Release 0.5.6
 
 Date: `2026-07-11`
