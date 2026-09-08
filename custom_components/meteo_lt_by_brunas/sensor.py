@@ -2,7 +2,8 @@
 
 # pylint: disable=too-many-arguments
 
-from typing import Dict, Any
+from typing import Any
+
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -11,14 +12,15 @@ from homeassistant.components.sensor import (
 from homeassistant.const import (
     DEGREE,
     PERCENTAGE,
+    UnitOfLength,
+    UnitOfPrecipitationDepth,
+    UnitOfPressure,
     UnitOfSpeed,
     UnitOfTemperature,
-    UnitOfPressure,
-    UnitOfPrecipitationDepth,
-    UnitOfLength,
 )
 from homeassistant.core import callback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
 from .const import DOMAIN, LOGGER
 
 
@@ -83,7 +85,7 @@ class MeteoLtBaseSensor(CoordinatorEntity, SensorEntity):
         return getattr(self.coordinator.data.current_conditions, self._attribute)
 
     @property
-    def extra_state_attributes(self) -> Dict[str, Any] | None:
+    def extra_state_attributes(self) -> dict[str, Any] | None:
         """Return the state attributes."""
         return {
             "last_updated": self.coordinator.last_updated,
@@ -123,7 +125,7 @@ class MeteoLtCurrentConditionsSensor(MeteoLtBaseSensor):
         self._attribute = "temperature"
 
     @property
-    def extra_state_attributes(self) -> Dict[str, Any] | None:
+    def extra_state_attributes(self) -> dict[str, Any] | None:
         """Return the state attributes."""
         current_conditions = self.coordinator.data.current_conditions
         LOGGER.debug("Current conditions: %s", current_conditions)
@@ -308,7 +310,7 @@ class MeteoLtWarningsSensor(MeteoLtBaseSensor):
         return len(warnings) if isinstance(warnings, list) else 1
 
     @property
-    def extra_state_attributes(self) -> Dict[str, Any] | None:
+    def extra_state_attributes(self) -> dict[str, Any] | None:
         """Return detailed warnings in attributes."""
         base_attrs = super().extra_state_attributes or {}
         warnings = getattr(self.coordinator.data.current_conditions, self._attribute)
@@ -373,7 +375,7 @@ class MeteoLtHydroBaseSensor(MeteoLtBaseSensor):
         return getattr(latest_observation, self._observation_attribute, None)
 
     @property
-    def extra_state_attributes(self) -> Dict[str, Any] | None:
+    def extra_state_attributes(self) -> dict[str, Any] | None:
         """Return all hydro observations in attributes."""
         base_attrs = super().extra_state_attributes or {}
         hydro = getattr(self.coordinator, "hydro_observations", None)
