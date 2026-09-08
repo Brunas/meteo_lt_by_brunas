@@ -4,7 +4,7 @@
 
 from collections import defaultdict
 from datetime import datetime
-from typing import List
+
 from homeassistant.components.weather import (
     Forecast,
     SingleCoordinatorWeatherEntity,
@@ -12,14 +12,15 @@ from homeassistant.components.weather import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
+    UnitOfPrecipitationDepth,
+    UnitOfPressure,
     UnitOfSpeed,
     UnitOfTemperature,
-    UnitOfPressure,
-    UnitOfPrecipitationDepth,
 )
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntryType
-from .const import DOMAIN, MANUFACTURER, LOGGER
+
+from .const import DOMAIN, LOGGER, MANUFACTURER
 from .coordinator import MeteoLtCoordinator
 
 
@@ -146,7 +147,7 @@ class MeteoLtWeather(SingleCoordinatorWeatherEntity[MeteoLtCoordinator]):
         }
 
     @callback
-    def _async_forecast_hourly(self) -> List[Forecast] | None:
+    def _async_forecast_hourly(self) -> list[Forecast] | None:
         """Return the hourly forecast in native units."""
         hourly_forecast = [
             Forecast(

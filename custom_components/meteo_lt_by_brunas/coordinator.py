@@ -1,11 +1,12 @@
 """coordinator.py"""
 
 from datetime import datetime, timedelta, timezone
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+
 from homeassistant.helpers import sun
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt
 
-from .const import MANUFACTURER, LOGGER, UPDATE_MINUTES
+from .const import LOGGER, MANUFACTURER, UPDATE_MINUTES
 
 
 class MeteoLtCoordinator(DataUpdateCoordinator):
@@ -74,7 +75,7 @@ class MeteoLtCoordinator(DataUpdateCoordinator):
                 hydro_observations = await self.api.get_hydro_observation_data(self.nearest_hydro_station.code)
                 LOGGER.debug("Hydro data fetched: %s", hydro_observations)
                 self.hydro_observations = hydro_observations
-            except Exception as exc:  # pragma: no cover - best-effort fetch; pylint: disable=broad-except
+            except Exception as exc:  # noqa: BLE001 pragma: no cover - best-effort fetch; pylint: disable=broad-except
                 LOGGER.debug("Failed to fetch hydro observations: %s", exc)
                 self.hydro_observations = None
 
