@@ -103,11 +103,6 @@ class MeteoLtBaseSensor(CoordinatorEntity, SensorEntity):
         LOGGER.debug("Updating Meteo.Lt sensor entity %s", self.entity_id)
         await self.coordinator.async_request_refresh()
 
-    async def async_added_to_hass(self):
-        """When entity is added to hass."""
-        await super().async_added_to_hass()
-        self.async_on_remove(self.coordinator.async_add_listener(self._handle_coordinator_update))
-
 
 class MeteoLtCurrentConditionsSensor(MeteoLtBaseSensor):
     """Representation of a Meteo.Lt Current Conditions Sensor."""
