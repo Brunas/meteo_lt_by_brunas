@@ -1,3 +1,19 @@
+## Release 0.5.8
+
+Date: `2026-09-15`
+
+### Bug Fixes
+
+- Coordinator update failures are now logged instead of failing silently. Cancelled fetches are logged as a warning (debug while Home Assistant is stopping), and timeouts and connection errors are reported with a readable reason instead of an unexpected-error traceback.
+- Forecast falls back to the nearest upcoming entry, with a warning, when the API returns nothing for the current hour. Previously sensors kept stale values or failed to load entirely.
+- Hydro observation failures are reported at warning level for the first failure of a streak (debug afterwards, info on recovery) rather than being swallowed at debug level.
+- Fixed sensor and weather entities subscribing to coordinator updates twice, which made every entity write its state twice per update.
+
+### Changes
+
+- Ruff lint issue fixes.
+- Bumped `colorlog` to `6.12.0`, `pip` to `>=26.2.1,<27` and CI actions.
+
 ## Release 0.5.7
 
 Date: `2026-07-12`
