@@ -1,3 +1,12 @@
+## Release 0.5.9
+
+Date: `2026-10-29`
+
+### Changes
+
+- Use `datetime.UTC` for coordinator update timestamps to fix Ruff UP017 failures in CI.
+- Bump `pip` to `>=26.2.2,<27`, `actions/setup-python` to `7.1.0`, and `softprops/action-gh-release` to `3.0.3`.
+
 ## Release 0.5.8
 
 Date: `2026-09-15`
