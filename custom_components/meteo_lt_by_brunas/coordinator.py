@@ -1,7 +1,7 @@
 """coordinator.py"""
 
 import asyncio
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import aiohttp
 from homeassistant.helpers import sun
@@ -146,5 +146,5 @@ class MeteoLtCoordinator(DataUpdateCoordinator):
         self.hydro_observations = await self._fetch_hydro_observations()
 
         LOGGER.debug("Forecast calculated: %s", forecast)
-        self.last_updated = datetime.now().astimezone(timezone.utc).isoformat()
+        self.last_updated = datetime.now(UTC).isoformat()
         return forecast
