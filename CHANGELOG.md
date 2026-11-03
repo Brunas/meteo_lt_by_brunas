@@ -1,3 +1,11 @@
+## Release 0.5.10
+
+Date: `2026-11-03`
+
+### Changes
+
+- Bumped `homeassistant` to `~=2026.7.0` (fixes Critical severity vulnerability CVE-2026-91130).
+
 ## Release 0.5.9
 
 Date: `2026-10-29`
